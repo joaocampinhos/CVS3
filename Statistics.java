@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.*;
 
 /*
    VERIFAST Concurrent Statistics Web Server Sample Code
@@ -29,13 +31,19 @@ import java.util.*;
   array_slice(s,n,s.length,?r)
   &*& all_eq(r,null) == true;
 
-  predicate PairInv(Pair p;) = p.count |-> ?n &*& n>= 0 &*& p.name |-> ?s &*& s != null;
+  predicate_ctor Pair_shared_state (Pair p) () =
+  p.count |-> ?n &*& n>= 0 &*& p.name |-> ?s &*& s != null;
+
+  predicate PairInv (Pair p;) =
+  p.mon |-> ?l &*& l != null &*& lck(l,1,Pair_shared_state(p));
+
   @*/
 
 class Pair {
 
   String name;
   int count;
+  ReentrantLock mon;
 
   public Pair(String n, int c)
     //@ requires n != null && c >= 0;
@@ -43,27 +51,53 @@ class Pair {
   {
     name = n;
     count = c;
+    //@ close Pair_shared_state(this)();
+    //@ close enter_lck(1,Pair_shared_state(this));
+    mon = new ReentrantLock();
+    //@ close PairInv(this);
   }
 
   String getN()
-    //@ requires [?f]PairInv(this);
-    //@ ensures [f]PairInv(this) &*& result != null;
+    //@ requires PairInv(this);
+    //@ ensures PairInv(this) &*& result != null;
   {
-    return name;
+    String r;
+    //@ open PairInv(this);
+    mon.lock();
+    //@ open Pair_shared_state(this)();
+    r = name;
+    //@ close Pair_shared_state(this)();
+    mon.unlock();
+    //@ close PairInv(this);
+    return r;
   }
 
   int getC()
-    //@ requires [?f]PairInv(this);
-    //@ ensures [f]PairInv(this);
+    //@ requires PairInv(this);
+    //@ ensures PairInv(this);
   {
-    return count;
+    int r;
+    //@ open PairInv(this);
+    mon.lock();
+    //@ open Pair_shared_state(this)();
+    r = count;
+    //@ close Pair_shared_state(this)();
+    mon.unlock();
+    //@ close PairInv(this);
+    return r;
   }
 
   void inc()
     //@ requires PairInv(this);
-    //@ ensures PairInv(this) ;
+    //@ ensures PairInv(this);
   {
-    count ++;
+    //@ open PairInv(this);
+    mon.lock();
+    //@ open Pair_shared_state(this)();
+    count++;
+    //@ close Pair_shared_state(this)();
+    mon.unlock();
+    //@ close PairInv(this);
   }
 
 }
@@ -99,8 +133,9 @@ public class Statistics {
         0<=i &*& i<=n &*& ans != null;
         @*/
     {
-      Integer.toString(store[i].getC());
-      ans = ans + store[i].getN()+":"+ Integer.toString(store[i].getC())+"<p>";
+      // TODO: :D
+      //Integer.toString(store[i].getC());
+      //ans = ans + store[i].getN()+":"+ Integer.toString(store[i].getC())+"<p>";
       i++;
     }
     return ans;
