@@ -133,7 +133,7 @@ public class Statistics {
         0<=i &*& i<=n &*& ans != null;
         @*/
     {
-      //Integer.toString(store[i].getC());
+      Integer.toString(store[i].getC());
       ans = ans + store[i].getN()+":"+ Integer.toString(store[i].getC())+"<p>";
       i++;
     }
