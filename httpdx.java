@@ -84,7 +84,7 @@ class Listener implements Runnable {
                       o.writeBytes("HTTP/1.0 200 OK\nContent-type: text/html\n");
                       o.writeBytes("Content-Length:" + Integer.toString(l) + "\n\n");
                       o.write(b, 0, l);
-                      //stat.log(p);
+                      stat.log(p);
                     }
                   }
                 }

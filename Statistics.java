@@ -58,32 +58,32 @@ class Pair {
   }
 
   String getN()
-    //@ requires PairInv(this);
-    //@ ensures PairInv(this) &*& result != null;
+    //@ requires [?f]PairInv(this);
+    //@ ensures [f]PairInv(this) &*& result != null;
   {
     String r;
-    //@ open PairInv(this);
+    //@ open [f]PairInv(this);
     mon.lock();
     //@ open Pair_shared_state(this)();
     r = name;
     //@ close Pair_shared_state(this)();
     mon.unlock();
-    //@ close PairInv(this);
+    //@ close [f]PairInv(this);
     return r;
   }
 
   int getC()
-    //@ requires PairInv(this);
-    //@ ensures PairInv(this);
+    //@ requires [?f]PairInv(this);
+    //@ ensures [f]PairInv(this);
   {
     int r;
-    //@ open PairInv(this);
+    //@ open [f]PairInv(this);
     mon.lock();
     //@ open Pair_shared_state(this)();
     r = count;
     //@ close Pair_shared_state(this)();
     mon.unlock();
-    //@ close PairInv(this);
+    //@ close [f]PairInv(this);
     return r;
   }
 
@@ -133,9 +133,8 @@ public class Statistics {
         0<=i &*& i<=n &*& ans != null;
         @*/
     {
-      // TODO: :D
       //Integer.toString(store[i].getC());
-      //ans = ans + store[i].getN()+":"+ Integer.toString(store[i].getC())+"<p>";
+      ans = ans + store[i].getN()+":"+ Integer.toString(store[i].getC())+"<p>";
       i++;
     }
     return ans;
