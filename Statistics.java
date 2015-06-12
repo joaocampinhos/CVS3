@@ -88,8 +88,8 @@ class Pair {
   }
 
   void inc()
-    //@ requires PairInv(this);
-    //@ ensures PairInv(this);
+    //@ requires [?f]PairInv(this);
+    //@ ensures [f]PairInv(this);
   {
     //@ open PairInv(this);
     mon.lock();
@@ -97,7 +97,7 @@ class Pair {
     count++;
     //@ close Pair_shared_state(this)();
     mon.unlock();
-    //@ close PairInv(this);
+    //@ close [f]PairInv(this);
   }
 
 }
@@ -123,7 +123,7 @@ public class Statistics {
   {
     int i = 0;
     String ans  = new String();
-    //@ open [f]StatisticsInv(this,n);
+    //@ open StatisticsInv(this,n);
     while (i<nelems)
       /*@ invariant [f]store |-> ?s &*& s != null &*&
         [f]nelems |-> n &*& [f]storeSize |-> ?sz &*& sz == s.length &*& n <= sz
@@ -141,16 +141,16 @@ public class Statistics {
   }
 
   public void log(String fn)
-    //@ requires StatisticsInv(this,?n) &*& fn != null;
-    //@ ensures StatisticsInv(this,?nn) &*& (n==nn||nn==n+1);
+    //@ requires [?f]StatisticsInv(this,?n) &*& fn != null;
+    //@ ensures [f]StatisticsInv(this,?nn) &*& (n==nn||nn==n+1);
   {
     int i = 0;
     //@ open StatisticsInv(this,n);
     while (i<nelems)
-      /*@ invariant store |-> ?s &*& s != null &*&
-        nelems |-> n &*& storeSize |-> ?sz &*& sz == s.length &*& n <= sz
-        &*& array_slice_deep(s,0,n,ElemP,unit,_,_) &*&
-        array_slice(s,n,s.length,?r)
+      /*@ invariant [f]store |-> ?s &*& s != null &*&
+        [f]nelems |-> n &*& [f]storeSize |-> ?sz &*& sz == s.length &*& n <= sz
+        &*& [f]array_slice_deep(s,0,n,ElemP,unit,_,_) &*&
+        [f]array_slice(s,n,s.length,?r)
         &*& all_eq(r,null) == true &*&
         0<=i &*& i<=n;
         @*/
